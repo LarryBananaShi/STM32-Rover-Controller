@@ -8,7 +8,7 @@
   *
   * Copyright (c) 2024 STMicroelectronics.
   * All rights reserved.
-  *
+  // 
   * This software is licensed under terms that can be found in the LICENSE file
   * in the root directory of this software component.
   * If no LICENSE file comes with this software, it is provided AS-IS.
@@ -103,6 +103,14 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+   if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET) { //this looks at the A0 pin
+          // Button is pressed (active low), turn LED ON
+          HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+      } else {
+          // Button is not pressed, turn LED OFF
+          HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+      }
+
 	 if(HAL_UART_Receive(&huart1,&rx_buff, 2, 1000)==HAL_OK){
 		 if (rx_buff[0]>50){
 			 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
