@@ -59,7 +59,7 @@ static void MX_USART1_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 int16_t rx_buff[2];
-uint8_t arrayLengthFour[] = {1,0,1,0};
+uint8_t motor_motion = 0;
 HAL_StatusTypeDef status;
 
 /* USER CODE END 0 */
@@ -103,13 +103,16 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-   if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET) { //this looks at the A0 pin
-          // Button is pressed (active low), turn LED ON
-          HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-      } else {
-          // Button is not pressed, turn LED OFF
-          HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-      }
+  //   //Following is the code for the Button readings you may have to change the GPIO pins to match whatever you want later
+    if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET) { //this looks at the A0 pin //this one is to turn left
+      motor_motion = 1;
+    } else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) == GPIO_PIN_SET){ //this one is to turn right
+      motor_motion = 2;
+    } else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) == GPIO_PIN_SET){ //this one is to go forwards
+      motor_motion = 3;
+    } else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) == GPIO_PIN_SET){ //this one is to go backwards
+      motor_motion = 4;
+    }
 
 	 if(HAL_UART_Receive(&huart1,&rx_buff, 2, 1000)==HAL_OK){
 		 if (rx_buff[0]>50){
@@ -121,7 +124,7 @@ int main(void)
 
 	 }
 
-	 status = HAL_UART_Transmit(&huart1, arrayLengthFour, 4, 1000);
+	 status = HAL_UART_Transmit(&huart1, motor_motion, 1, 1000);
 
 
 
