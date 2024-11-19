@@ -60,6 +60,7 @@ static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN 0 */
 int16_t rx_buff[2];
 uint8_t motor_motion = 0;
+uint8_t sensor_data[3] = {};
 HAL_StatusTypeDef status;
 
 /* USER CODE END 0 */
@@ -104,29 +105,37 @@ int main(void)
   while (1)
   {
   //   //Following is the code for the Button readings you may have to change the GPIO pins to match whatever you want later
-    if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET) { //this looks at the A0 pin //this one is to turn left
-      motor_motion = 1;
-    } else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) == GPIO_PIN_SET){ //this one is to turn right
-      motor_motion = 2;
-    } else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) == GPIO_PIN_SET){ //this one is to go forwards
-      motor_motion = 3;
-    } else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) == GPIO_PIN_SET){ //this one is to go backwards
-      motor_motion = 4;
-    }
+    if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)){
+		  motor_control = 0;
+	  } else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4)){
+		  motor_control = 1;
+	  } else if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0)){
+		  motor_control = 2;
+	  } else if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_1)){
+		  motor_control = 3;
+	  }
 
-	 if(HAL_UART_Receive(&huart1,&rx_buff, 2, 1000)==HAL_OK){
-		 if (rx_buff[0]>50){
-			 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+	 if(HAL_UART_Receive(&huart1,&sensor_data, 2, 1000)==HAL_OK){ //right now it lights up the STM32's LED, however in the future it can/should be changed to an LED on the breadboard? and the exact values here need to be modified (will notify with comments)
+		 if (sensor_data[0]>50){ //this is for the temperature sensor
+			 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET); //change the pin on this to whatever you want
 		 } else {
-			 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+			 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);//change the pin on this to whatever you want
 		 }
+     if (sensor_data[1] = 1){ //this is for the gas sensor. Number should be one for passed threshold, adjust on the sensor
+       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET); //change the pin on this to whatever you want
+     } else{
+       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET); //change the pin on this to whatever you want
+     }
+     if (sensor_data[2] < 30){ //this is for the ultrasonic sensor. Fine tune the numbers (assumed that it is in mm)
+       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET); //change the pin on this to whatever you want
+     } else{
+       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET); //change the pin on this to whatever you want
+     }
 
 
 	 }
 
 	 status = HAL_UART_Transmit(&huart1, motor_motion, 1, 1000);
-
-
 
 
     /* USER CODE END WHILE */
